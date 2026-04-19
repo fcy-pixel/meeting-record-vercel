@@ -33,6 +33,7 @@ export default function Home() {
     focus: [] as string[],
     content: "",
     diversity: [] as string[],
+    diversity_detail: "",
   });
 
   const [result, setResult] = useState("");
@@ -115,7 +116,7 @@ export default function Home() {
       year: "2025-2026", term: "下學期", subject: "", grade: "",
       week_date: "", time: "3:15", location: "教員室", recorder: "",
       att_head: "", att_faith: "", att_hope: "", att_love: "",
-      att_wisdom: "", att_guest: "", focus: [], content: "", diversity: [],
+      att_wisdom: "", att_guest: "", focus: [], content: "", diversity: [], diversity_detail: "",
     });
     setResult("");
   }
@@ -248,6 +249,13 @@ export default function Home() {
                 </label>
               ))}
             </div>
+            <textarea
+              value={form.diversity_detail}
+              onChange={(e) => update("diversity_detail", e.target.value)}
+              placeholder="輸入照顧學習多樣性的具體內容或說明"
+              rows={3}
+              style={{ marginTop: 8 }}
+            />
           </div>
         </div>
 

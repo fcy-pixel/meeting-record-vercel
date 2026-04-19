@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
   const {
     year, term, subject, grade, week_date, time, location, recorder,
     att_head, att_faith, att_hope, att_love, att_wisdom, att_guest,
-    focus, content, diversity,
+    focus, content, diversity, diversity_detail,
   } = body;
 
   const attendees = [
@@ -52,6 +52,7 @@ export async function POST(req: NextRequest) {
 會議議題：${Array.isArray(focus) ? focus.join("、") : focus || ""}
 會議重點內容：${content || ""}
 ${(Array.isArray(diversity) ? diversity.length > 0 : diversity) ? `照顧學習多樣性：${Array.isArray(diversity) ? diversity.join("、") : diversity}` : ""}
+${diversity_detail ? `照顧學習多樣性內容：${diversity_detail}` : ""}
 
 請生成完整的會議紀錄。`;
 
