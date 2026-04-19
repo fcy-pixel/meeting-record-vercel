@@ -52,10 +52,6 @@ export default function Home() {
   }
 
   async function handleGenerate() {
-    if (!form.subject || !form.content) {
-      showToast("請至少填寫科目和會議重點內容", "error");
-      return;
-    }
     setLoading(true);
     setResult("");
     try {
@@ -158,7 +154,7 @@ export default function Home() {
             </select>
           </div>
           <div className="form-group">
-            <label>科目 *</label>
+            <label>科目</label>
             <input type="text" value={form.subject} onChange={(e) => update("subject", e.target.value)} placeholder="輸入科目名稱" />
           </div>
           <div className="form-group">
@@ -234,7 +230,7 @@ export default function Home() {
             </div>
           </div>
           <div className="form-group full">
-            <label>會議重點內容 *</label>
+            <label>會議重點內容</label>
             <textarea
               value={form.content}
               onChange={(e) => update("content", e.target.value)}
