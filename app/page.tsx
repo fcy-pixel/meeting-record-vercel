@@ -1,13 +1,11 @@
 "use client";
 
 import { useState, useRef } from "react";
+import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } from "docx";
+import { saveAs } from "file-saver";
 
 const YEAR_OPTIONS = ["2023-2024", "2024-2025", "2025-2026"];
 const TERM_OPTIONS = ["上學期", "下學期"];
-const SUBJECT_OPTIONS = [
-  "中文", "英文", "數學", "常識", "科技", "音樂", "體育",
-  "視覺藝術", "普通話", "宗教", "圖書", "STEAM",
-];
 const GRADE_OPTIONS = ["一年級", "二年級", "三年級", "四年級", "五年級", "六年級"];
 const FOCUS_OPTIONS = [
   "進度擬寫", "測考擬題", "教學設計", "活動安排", "教學反思", "成績分析",
@@ -76,6 +74,39 @@ export default function Home() {
     navigator.clipboard.writeText(result).then(() => showToast("已複製到剪貼簿", "success"));
   }
 
+  async function handleDownloadDocx() {
+    const lines = result.split("\n");
+    const children: Paragraph[] = [];
+
+    for (const line of lines) {
+      if (!line.trim()) {
+        children.push(new Paragraph({ text: "" }));
+      } else if (line.startsWith("#")) {
+        const text = line.replace(/^#+\s*/, "");
+        children.push(new Paragraph({
+          text,
+          heading: HeadingLevel.HEADING_1,
+          alignment: AlignmentType.CENTER,
+          spacing: { after: 200 },
+        }));
+      } else {
+        children.push(new Paragraph({
+          children: [new TextRun({ text: line, size: 24 })],
+          spacing: { after: 100 },
+        }));
+      }
+    }
+
+    const doc = new Document({
+      sections: [{ children }],
+    });
+
+    const blob = await Packer.toBlob(doc);
+    const filename = `會議紀錄_${form.subject || "未命名"}_${form.week_date || new Date().toLocaleDateString()}.docx`;
+    saveAs(blob, filename);
+    showToast("已下載 DOCX", "success");
+  }
+
   function handleReset() {
     setForm({
       year: "2025-2026", term: "下學期", subject: "", grade: "",
@@ -121,10 +152,7 @@ export default function Home() {
           </div>
           <div className="form-group">
             <label>科目 *</label>
-            <select value={form.subject} onChange={(e) => update("subject", e.target.value)}>
-              <option value="">— 選擇科目 —</option>
-              {SUBJECT_OPTIONS.map((o) => <option key={o} value={o}>{o}</option>)}
-            </select>
+            <input type="text" value={form.subject} onChange={(e) => update("subject", e.target.value)} placeholder="輸入科目名稱" />
           </div>
           <div className="form-group">
             <label>年級</label>
@@ -232,6 +260,7 @@ export default function Home() {
             <>
               <div className="result-content">{result}</div>
               <div className="btn-row">
+                <button className="btn btn-primary" onClick={handleDownloadDocx}>📥 下載 DOCX</button>
                 <button className="btn btn-primary" onClick={handleCopy}>📋 複製紀錄</button>
                 <button className="btn btn-secondary" onClick={handleGenerate}>🔄 重新生成</button>
               </div>
