@@ -49,9 +49,9 @@ export async function POST(req: NextRequest) {
 地點：${location || ""}
 記錄者：${recorder || ""}
 出席者：${attendees}
-會議議題：${focus || ""}
+會議議題：${Array.isArray(focus) ? focus.join("、") : focus || ""}
 會議重點內容：${content || ""}
-${diversity ? `照顧學習多樣性：${diversity}` : ""}
+${(Array.isArray(diversity) ? diversity.length > 0 : diversity) ? `照顧學習多樣性：${Array.isArray(diversity) ? diversity.join("、") : diversity}` : ""}
 
 請生成完整的會議紀錄。`;
 

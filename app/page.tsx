@@ -30,9 +30,9 @@ export default function Home() {
     att_love: "",
     att_wisdom: "",
     att_guest: "",
-    focus: "",
+    focus: [] as string[],
     content: "",
-    diversity: "",
+    diversity: [] as string[],
   });
 
   const [result, setResult] = useState("");
@@ -42,6 +42,13 @@ export default function Home() {
 
   function update(key: string, value: string) {
     setForm((prev) => ({ ...prev, [key]: value }));
+  }
+
+  function toggleMulti(key: "focus" | "diversity", value: string) {
+    setForm((prev) => {
+      const arr = prev[key] as string[];
+      return { ...prev, [key]: arr.includes(value) ? arr.filter((v) => v !== value) : [...arr, value] };
+    });
   }
 
   async function handleGenerate() {
@@ -112,7 +119,7 @@ export default function Home() {
       year: "2025-2026", term: "下學期", subject: "", grade: "",
       week_date: "", time: "3:15", location: "教員室", recorder: "",
       att_head: "", att_faith: "", att_hope: "", att_love: "",
-      att_wisdom: "", att_guest: "", focus: "", content: "", diversity: "",
+      att_wisdom: "", att_guest: "", focus: [], content: "", diversity: [],
     });
     setResult("");
   }
@@ -216,11 +223,15 @@ export default function Home() {
         <h2>📝 會議內容</h2>
         <div className="form-grid">
           <div className="form-group full">
-            <label>會議議題</label>
-            <select value={form.focus} onChange={(e) => update("focus", e.target.value)}>
-              <option value="">— 選擇議題 —</option>
-              {FOCUS_OPTIONS.map((o) => <option key={o} value={o}>{o}</option>)}
-            </select>
+            <label>會議議題（可多選）</label>
+            <div className="checkbox-group">
+              {FOCUS_OPTIONS.map((o) => (
+                <label key={o} className="checkbox-label">
+                  <input type="checkbox" checked={form.focus.includes(o)} onChange={() => toggleMulti("focus", o)} />
+                  {o}
+                </label>
+              ))}
+            </div>
           </div>
           <div className="form-group full">
             <label>會議重點內容 *</label>
@@ -232,11 +243,15 @@ export default function Home() {
             />
           </div>
           <div className="form-group full">
-            <label>照顧學習多樣性（選擇性）</label>
-            <select value={form.diversity} onChange={(e) => update("diversity", e.target.value)}>
-              <option value="">— 不適用 —</option>
-              {DIVERSITY_OPTIONS.map((o) => <option key={o} value={o}>{o}</option>)}
-            </select>
+            <label>照顧學習多樣性（選擇性，可多選）</label>
+            <div className="checkbox-group">
+              {DIVERSITY_OPTIONS.map((o) => (
+                <label key={o} className="checkbox-label">
+                  <input type="checkbox" checked={form.diversity.includes(o)} onChange={() => toggleMulti("diversity", o)} />
+                  {o}
+                </label>
+              ))}
+            </div>
           </div>
         </div>
 
