@@ -132,9 +132,14 @@ export default function Home() {
 
       <div className="page-header">
         <img src="/logo.png" alt="基慈小學" />
-        <div>
+        <div style={{ flex: 1 }}>
           <h1>會議紀錄生成器</h1>
           <p>AI 自動生成會議紀錄 Powered by Qwen AI</p>
+        </div>
+        <div className="model-badge">
+          <span className="model-dot"></span>
+          <span>qwen-plus</span>
+          <span className="model-vendor">Alibaba Cloud</span>
         </div>
       </div>
 
