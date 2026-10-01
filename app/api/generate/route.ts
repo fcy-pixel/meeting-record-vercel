@@ -22,12 +22,7 @@ const SYSTEM_PROMPT = `你是香港小學的會議紀錄撰寫助手。用戶只
 其他事項：無法歸入上述議題的實際討論；不可硬套分類。
 
 照顧學習多樣性（選擇性、可多選，只用以下名稱）：
-教學方法：因應學習差異採用不同講解、示範、鷹架或教學策略。
-教學資源：因應學習需要提供圖像、實物、輔助工具或不同教材。
-分層課業：按能力安排基礎、進階、延伸或不同難度的課業。
-評估調適：因應個別需要調整考試時間、作答方式、讀題或評估安排。
-課程調適：因應學習需要調整學習目標、課程內容或學習進度。
-同儕學習：明確以同儕配對、朋輩輔導或協作支援不同能力學生。
+教學方法、教學資源、分層課業、評估調適、課程調適、同儕學習。
 只有逐字稿明確提到因應不同能力、學習需要、特殊教育需要、資優、學習困難或學習差異的具體支援才選取。
 一般教學方法、一般教材、一般考試或普通小組活動，不等於照顧學習多樣性。沒有相關內容時 diversity 為 []，diversity_detail 為空字串。
 diversity_detail 要整理各種支援的具體做法、對象及已提及的安排；不可自行建議新支援。
@@ -41,7 +36,9 @@ diversity_detail 要整理各種支援的具體做法、對象及已提及的安
 6. adjournment_time、next_meeting_date 只可用逐字稿明確提及的散會時間、下次會議日期，沒有就用空字串。散會時間、下次科組會議日期是會議基本資料，不是「活動安排」，不要為這些資料建立 sections 段落或勾選議題。「活動安排」只適用於實際科組活動、比賽、參觀等學生或教學活動。
 7. content 與 diversity_detail 使用正式、簡潔繁體中文純文字，可換行及用數字編號；不用 Markdown、emoji 或星號。
 8. 只輸出以下 JSON 結構，所有欄位必須提供：
-{"focus":[],"diversity":[],"diversity_detail":"","sections":[{"topic":"教學設計","content":"按逐字稿整理的討論、決定及跟進事項"}],"adjournment_time":"","next_meeting_date":""}`;
+{"focus":[],"diversity":[],"diversity_detail":"","sections":[{"topic":"教學設計","content":"按逐字稿整理的討論、決定及跟進事項"}],"adjournment_time":"","next_meeting_date":""}
+9. JSON 最外層直接使用上述欄位，不要包在 analysis、result 或其他欄位內。focus、diversity 只可包含完全相同的分類名稱字串，不能包含分類說明或物件。diversity_detail、sections 的 content、adjournment_time、next_meeting_date 必須是單一字串，不能是陣列或物件。
+10. sections 的 topic 只可為「進度擬寫」、「測考擬題」、「教學設計」、「活動安排」、「教學反思」、「成績分析」、「其他事項」七種名稱。「照顧學習多樣性」的整理只放於 diversity_detail，不可作為 sections 的 topic。`;
 
 function validOverrides(value: unknown, options: readonly string[]): Record<string, boolean> {
   const result: Record<string, boolean> = {};
@@ -107,8 +104,10 @@ export async function POST(req: NextRequest) {
     let analysis;
     try {
       analysis = parseAnalysis(choice.message.content);
-    } catch {
-      return NextResponse.json({ error: "AI 回傳的分類格式不完整，請重試" }, { status: 502 });
+    } catch (error) {
+      const code = error instanceof Error && error.message === "Invalid meeting category" ? "invalid_category"
+        : error instanceof Error && error.message === "Invalid meeting section" ? "invalid_section" : "invalid_analysis";
+      return NextResponse.json({ error: "AI 回傳的分類格式不完整，請重試", code }, { status: 502 });
     }
     analysis.focus = selectCategories(FOCUS_OPTIONS, analysis.focus, overrides.focus);
     analysis.diversity = selectCategories(DIVERSITY_OPTIONS, analysis.diversity, overrides.diversity);
