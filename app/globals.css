@@ -168,6 +168,7 @@ body {
 
 .btn-row {
   display: flex;
+  flex-wrap: wrap;
   gap: 10px;
   margin-top: 16px;
 }
@@ -267,5 +268,22 @@ body {
 }
 
 .checkbox-label input[type="checkbox"] {
-  display: none;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  accent-color: var(--accent);
 }
+
+.meeting-form { border: 0; min-width: 0; }
+.meeting-form:disabled .checkbox-label { cursor: wait; }
+.form-help { font-size: 0.82rem; color: var(--text-light); line-height: 1.7; }
+.form-error { font-size: 0.82rem; color: var(--danger); line-height: 1.7; }
+.intro-help { margin-bottom: 16px; }
+.transcript-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 4px; }
+.detail-label { margin-top: 10px; }
+.classification-status { background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 8px; padding: 14px; font-size: 0.85rem; line-height: 1.7; }
+.classification-preview { margin-top: 8px; }
+.classification-preview summary { cursor: pointer; color: var(--accent); font-weight: 600; }
+.agenda-section { margin-top: 12px; }
+.agenda-section h3 { font-size: 0.9rem; margin-bottom: 4px; }
+.agenda-section p { white-space: pre-wrap; }
