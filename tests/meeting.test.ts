@@ -62,13 +62,15 @@ test("no diversity leaves both checkboxes and detail empty", async () => {
 });
 
 test("manual deselection is respected without losing the corresponding discussion", async () => {
-  model();
+  const call = model();
   const data = await (await POST(request({ content: "逐字稿", overrides: { focus: { "教學設計": false, "活動安排": true }, diversity: { "同儕學習": false } } }))).json();
   assert.deepEqual(data.analysis.focus, ["進度擬寫", "活動安排"]);
   assert.deepEqual(data.analysis.diversity, ["分層課業"]);
   assert.doesNotMatch(data.result, /\d\. 教學設計/);
   assert.match(data.result, /張老師建議試行同儕協作/);
   assert.doesNotMatch(data.result, /\d\. 活動安排/); // A selected label cannot create missing facts.
+  const prompt = JSON.parse((call.mock.calls[0].arguments[0] as any).messages[1].content);
+  assert.equal(prompt.overrides, undefined); // Label edits must not influence extraction of the discussion.
 });
 
 test("manual diversity supplement is preserved even without a chosen checkbox", async () => {

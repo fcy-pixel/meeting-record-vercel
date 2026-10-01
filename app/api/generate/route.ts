@@ -31,8 +31,8 @@ diversity_detail 要整理各種支援的具體做法、對象及已提及的安
 1. sections 按內容性質分段，不按發言者或發言順序分類。同一段發言包含不同議題時必須拆分。同一議題可有多項重點；保留所有實質議題、決定、跟進事項、負責人、日期、數字及條件，刪除口頭禪和重複語句。已取得的成績、及格率及題目表現必須放於「成績分析」，不能因同段提及擬卷而放於「測考擬題」。
 2. 不編造資料、出席者、決議、負責人或期限。把建議、暫定安排、問題及已確認決定分清楚；意見分歧不可當作一致通過。
 3. focus 必須與 sections 的議題相符，排除「其他事項」。照顧學習多樣性可與會議議題同時出現。
-4. 表單的 overrides 是用戶對分類的手動修訂，true 表示選取，false 表示不選取，優先尊重。被取消的議題內容仍需保留於「其他事項」或其他合適議題。
-5. 手動選取的分類如逐字稿沒有內容，只列為分類，不可編造段落。用戶補充的 diversity_detail 亦是資料，應保留及整理。
+4. 分類只依據實際討論內容。不可為了套入某議題而新增建議、教學策略或反思。只提及某題目表現較弱，沒有討論改善做法時，只屬「成績分析」，不要自動補上「教學反思」。
+5. 用戶補充的 diversity_detail 亦是資料，應保留及整理。
 6. adjournment_time、next_meeting_date 只可用逐字稿明確提及的散會時間、下次會議日期，沒有就用空字串。散會時間、下次科組會議日期是會議基本資料，不是「活動安排」，不要為這些資料建立 sections 段落或勾選議題。「活動安排」只適用於實際科組活動、比賽、參觀等學生或教學活動。
 7. content 與 diversity_detail 使用正式、簡潔繁體中文純文字，可換行及用數字編號；不用 Markdown、emoji 或星號。
 8. 只輸出以下 JSON 結構，所有欄位必須提供：
@@ -90,7 +90,7 @@ export async function POST(req: NextRequest) {
       model: MODEL_NAME,
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
-        { role: "user", content: JSON.stringify({ transcript: form.content, diversity_detail: form.diversity_detail, overrides }) },
+        { role: "user", content: JSON.stringify({ transcript: form.content, diversity_detail: form.diversity_detail }) },
       ],
       response_format: { type: "json_object" },
       temperature: 0.2,
@@ -109,6 +109,7 @@ export async function POST(req: NextRequest) {
         : error instanceof Error && error.message === "Invalid meeting section" ? "invalid_section" : "invalid_analysis";
       return NextResponse.json({ error: "AI 回傳的分類格式不完整，請重試", code }, { status: 502 });
     }
+    // Apply manual labels after extraction so changing a checkbox cannot change the facts.
     analysis.focus = selectCategories(FOCUS_OPTIONS, analysis.focus, overrides.focus);
     analysis.diversity = selectCategories(DIVERSITY_OPTIONS, analysis.diversity, overrides.diversity);
     analysis.sections = analysis.sections.map((section) => ({
